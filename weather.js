@@ -1,12 +1,45 @@
 #!/usr/bin/env node
 
 import { clArgsService } from './services/cl-args.service.js';
+import { LogService } from './services/log.service.js';
+import { StorageService } from './services/storage.service.js';
 
-// initCLI();
+class App {
+  clArgsService = clArgsService;
+  logService = new LogService();
+  storageService = new StorageService();
 
-class WeatherApp {
   run() {
-    console.log(clArgsService.getCommandLineArguments(process.argv));
+    this.getArguments();
+    this.argsHandler();
+  }
+
+  getArguments() {
+    this.args = this.clArgsService.getCommandLineArguments(process.argv);
+  }
+
+  async argsHandler() {
+    if (this.args.h) this.logService.printHelp();
+
+    if (this.args.t) {
+      if (!this.args.t.length) {
+        this.logService.printError('Нет аргумента для токена');
+        return;
+      }
+
+      try {
+        await this.storageService.saveKeyValue('token', this.args.t);
+        this.logService.printSuccess('Токен успешно сохранен');
+      } catch (e) {
+        this.logService.printError(e.message);
+      }
+    }
+  }
+}
+
+class WeatherApp extends App {
+  constructor() {
+    super();
   }
 }
 
