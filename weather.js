@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
+import { weatherApiConstructor } from './services/api.service.js';
 import { clArgsService } from './services/cl-args.service.js';
 import { LogService } from './services/log.service.js';
+import { WeatherRequest } from './services/request.service.js';
 import { StorageService } from './services/storage.service.js';
 
 class App {
   clArgsService = clArgsService;
   logService = new LogService();
   storageService = new StorageService();
+  weatherRequestService = new WeatherRequest(weatherApiConstructor);
 
   run() {
     this.getArguments();
@@ -34,6 +37,8 @@ class App {
         this.logService.printError(e.message);
       }
     }
+
+    this.weatherRequestService.getWeather('moscow');
   }
 }
 
