@@ -19,6 +19,4 @@ export class WeatherApiConstructor extends ApiConstructor {
   }
 }
 
-export const weatherApiConstructor = new WeatherApiConstructor(
-  '302c7da2ead519d935fe288cffb3ef25'
-);
+export const weatherApiConstructor = new WeatherApiConstructor(); // init API token
