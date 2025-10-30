@@ -15,6 +15,15 @@ export class StorageService {
     promises.writeFile(FILE_PATH, JSON.stringify(data));
   }
 
+  async getKeyValueFromFile(key) {
+    if (await this.isExist(path)) {
+      const file = await promises.readFile(FILE_PATH);
+      const data = JSON.parse(file);
+      return data[key];
+    }
+    return undefined;
+  }
+
   async isExist(path) {
     try {
       await promises.stat(path);
