@@ -13,32 +13,34 @@ class App {
   weatherApiConstructor = null;
   weatherRequestService = null;
 
-  constructor() {
-    this.initToken();
-    this.initServices();
-  }
-
-  async initToken() {
+  async init() {
     this.token =
       process.env.TOKEN ??
       (await this.storageService.getKeyValueFromFile('token'));
+
+    if (this.token) {
+      this.weatherApiConstructor = new WeatherApiConstructor(this.token);
+      this.weatherRequestService = new WeatherRequest(
+        this.weatherApiConstructor
+      );
+    } else {
+      this.logService.printError(
+        'Проблема инициализации токена, перепроверьте файл или укажите токен через строку'
+      );
+    }
   }
 
-  initServices() {
-    this.weatherApiConstructor = new WeatherApiConstructor(this.token);
-    this.weatherRequestService = new WeatherRequest(this.weatherApiConstructor);
-  }
-
-  run() {
-    this.getArguments();
-    this.argsHandler();
+  async runApp() {
+    await this.init();
+    await this.getArguments();
+    await this.argsParser();
   }
 
   getArguments() {
     this.args = this.clArgsService.getCommandLineArguments(process.argv);
   }
 
-  async argsHandler() {
+  async argsParser() {
     if (this.args.h) this.logService.printHelp();
 
     if (this.args.t) {
@@ -55,9 +57,26 @@ class App {
       }
     }
 
-    this.weatherRequestService.getWeather('moscow');
+    if (this.args.s) this.getForecast();
+  }
+
+  async getForecast() {
+    try {
+      const weather = await this.weatherRequestService.getWeather(this.args.s);
+      console.log(weather);
+    } catch (e) {
+      if (e?.response?.status == 404 || e?.response?.status === 400) {
+        this.logService.printError('Проверьте правильность указания города');
+      } else if (e?.response?.status == 401) {
+        this.logService.printError(
+          'Неверно указан токен авторизации или неуказан вообще'
+        );
+      } else {
+        this.logService.printError(e.message);
+      }
+    }
   }
 }
 
 const app = new App();
-app.run();
+app.runApp();
