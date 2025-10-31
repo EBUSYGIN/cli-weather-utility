@@ -16,7 +16,7 @@ export class StorageService {
   }
 
   async getKeyValueFromFile(key) {
-    if (await this.isExist(path)) {
+    if (await this.isExist(FILE_PATH)) {
       const file = await promises.readFile(FILE_PATH);
       const data = JSON.parse(file);
       return data[key];
