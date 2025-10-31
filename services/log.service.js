@@ -19,4 +19,17 @@ export class LogService {
       `
     );
   }
+
+  printWeather(response) {
+    console.log(
+      `${chalk.bgMagenta('WEATHER')} Погода в городе: ${response.name}
+      ${response.weather[0].description}
+      Температура: ${response.main.temp} (ощущается как ${
+        response.main.feels_like
+      })
+      Влажность: ${response.main.humidity}
+      Скорость ветра: ${response.wind.speed}
+      `
+    );
+  }
 }

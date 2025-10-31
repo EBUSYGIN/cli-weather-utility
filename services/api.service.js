@@ -14,7 +14,7 @@ export class WeatherApiConstructor extends ApiConstructor {
     url.searchParams.append('q', city);
     url.searchParams.append('appid', this.token);
     url.searchParams.append('lang', 'ru');
-    url.searchParams.append('units', 'metrics');
+    url.searchParams.append('units', 'metric');
     return url;
   }
 }

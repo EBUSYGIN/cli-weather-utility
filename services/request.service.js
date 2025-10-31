@@ -26,7 +26,8 @@ export class WeatherRequest extends RequestService {
     // });
 
     const { data } = await axios.get(this.apiService.getWeatherUrl(city));
-    console.log(data);
     return data;
   }
+
+  async getIcon() {}
 }

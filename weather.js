@@ -18,6 +18,10 @@ class App {
       process.env.TOKEN ??
       (await this.storageService.getKeyValueFromFile('token'));
 
+    this.city =
+      process.env.CITY ??
+      (await this.storageService.getKeyValueFromFile('city'));
+
     if (this.token) {
       this.weatherApiConstructor = new WeatherApiConstructor(this.token);
       this.weatherRequestService = new WeatherRequest(
@@ -41,7 +45,10 @@ class App {
   }
 
   async argsParser() {
-    if (this.args.h) this.logService.printHelp();
+    if (this.args.h) {
+      this.logService.printHelp();
+      return;
+    }
 
     if (this.args.t) {
       if (!this.args.t.length) {
@@ -57,13 +64,27 @@ class App {
       }
     }
 
-    if (this.args.s) this.getForecast();
+    if (this.args.s) {
+      await this.saveCity();
+      return;
+    }
+
+    if (this.city) await this.getForecast();
+  }
+
+  async saveCity() {
+    try {
+      await this.storageService.saveKeyValue('city', this.args.s);
+      this.logService.printSuccess('Город успешно сохранен');
+    } catch (e) {
+      this.logService.printError(e.message);
+    }
   }
 
   async getForecast() {
     try {
-      const weather = await this.weatherRequestService.getWeather(this.args.s);
-      console.log(weather);
+      const weather = await this.weatherRequestService.getWeather(this.city);
+      this.logService.printWeather(weather);
     } catch (e) {
       if (e?.response?.status == 404 || e?.response?.status === 400) {
         this.logService.printError('Проверьте правильность указания города');
